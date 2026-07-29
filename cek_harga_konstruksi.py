@@ -55,7 +55,7 @@ st.markdown(
     <style>
         .stApp {{ background-color: {CREAM}; }}
         .block-container {{
-            padding-top: 1rem;
+            padding-top: 3rem;
             padding-bottom: 1rem;
             max-width: 680px;
         }}
@@ -177,6 +177,27 @@ st.markdown(
 )
 
 df = load_data()
+
+# ---------------- auto-select isi input angka saat diklik/fokus ----------------
+components.html(
+    """
+    <script>
+    try {
+        const doc = window.parent.document;
+        if (!doc.__autoSelectNumberAttached) {
+            doc.addEventListener('focusin', function (e) {
+                const el = e.target;
+                if (el && el.tagName === 'INPUT' && el.type === 'number') {
+                    el.select();
+                }
+            });
+            doc.__autoSelectNumberAttached = true;
+        }
+    } catch (err) {}
+    </script>
+    """,
+    height=0,
+)
 
 # ---------------- header ----------------
 st.markdown(
