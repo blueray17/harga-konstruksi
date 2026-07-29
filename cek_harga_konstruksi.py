@@ -6,11 +6,8 @@ st.set_page_config(page_title="Check Harga Konstruksi", layout="centered", page_
 
 # ============================================================
 # KONFIGURASI GOOGLE SHEET
-# Ganti SHEET_ID dan GID sesuai spreadsheet Anda.
-# SHEET_ID diambil dari URL: https://docs.google.com/spreadsheets/d/<SHEET_ID>/edit#gid=<GID>
-# Sheet harus dibuat "Anyone with the link -> Viewer" agar bisa diakses publik.
 # ============================================================
-SHEET_ID = "PASTE_SHEET_ID_DISINI"
+SHEET_ID = "1kl4tdnLZt1_GBDWwehTQ4VJr1tM-7sFTFn3eH9sqCTU"
 GID = "0"
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}"
 
@@ -22,8 +19,6 @@ def load_data():
         df.columns = [c.strip() for c in df.columns]
         return df
     except Exception:
-        # data contoh (fallback) sesuai tabel yang dilampirkan,
-        # dipakai jika SHEET_ID belum diisi / sheet belum bisa diakses
         return pd.DataFrame({
             "kode": [
                 "1. Tanah Uruk (tanah biasa)", "2. Pasir Pasang", "3. Pasir cor/beton",
@@ -46,7 +41,7 @@ def rupiah(nilai) -> str:
 
 
 # ============================================================
-# TEMA ORANGE - nuansa Sensus Ekonomi
+# TEMA ORANGE - nuansa Sensus Ekonomi (kompak untuk mobile)
 # ============================================================
 ORANGE = "#F26522"
 ORANGE_DARK = "#C64A0A"
@@ -58,78 +53,73 @@ TEXT_DARK = "#3A2A1E"
 st.markdown(
     f"""
     <style>
-        .stApp {{
-            background-color: {CREAM};
-        }}
+        .stApp {{ background-color: {CREAM}; }}
         .block-container {{
-            padding-top: 1.5rem;
-            max-width: 720px;
+            padding-top: 1rem;
+            padding-bottom: 1rem;
+            max-width: 680px;
+        }}
+        /* rapatkan jarak antar elemen agar kompak di mobile */
+        div[data-testid="stVerticalBlock"] > div {{
+            margin-bottom: 0.15rem;
+        }}
+        div[data-testid="element-container"] {{
+            margin-bottom: 0.2rem !important;
         }}
 
         /* ---------- Header banner ---------- */
         .header-banner {{
             background: linear-gradient(120deg, {ORANGE} 0%, {ORANGE_MID} 60%, {ORANGE_DARK} 100%);
-            border-radius: 20px;
-            padding: 26px 28px;
-            margin-bottom: 22px;
-            box-shadow: 0 8px 20px rgba(242, 101, 34, 0.30);
+            border-radius: 16px;
+            padding: 16px 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 6px 16px rgba(242, 101, 34, 0.28);
             text-align: center;
-        }}
-        .header-icons {{
-            font-size: 30px;
-            margin-bottom: 4px;
-            letter-spacing: 6px;
         }}
         .header-title {{
             color: white;
-            font-size: 30px;
+            font-size: 22px;
             font-weight: 800;
             margin: 0;
-            text-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }}
         .header-sub {{
             color: {ORANGE_LIGHT};
-            font-size: 14px;
+            font-size: 12px;
             font-weight: 500;
-            margin-top: 4px;
+            margin-top: 2px;
         }}
 
-        /* ---------- Card style container ---------- */
-        .card {{
-            background-color: white;
-            border: 1px solid #FBD9BE;
-            border-radius: 16px;
-            padding: 18px 20px;
-            margin-bottom: 18px;
-            box-shadow: 0 4px 14px rgba(242, 101, 34, 0.08);
-        }}
-        .card-title {{
+        .section-title {{
             color: {ORANGE_DARK};
             font-weight: 700;
-            font-size: 15px;
-            margin-bottom: 10px;
+            font-size: 14px;
+            margin: 10px 0 4px 0;
         }}
 
         /* ---------- Labels & widgets ---------- */
-        label, .stSelectbox label, .stNumberInput label {{
+        label {{
             color: {ORANGE_DARK} !important;
             font-weight: 600 !important;
+            font-size: 13px !important;
         }}
-        div[data-baseweb="select"],
-        div[data-baseweb="select"] > div,
-        div[data-baseweb="select"] div {{
+
+        /* ---------- Selectbox: paksa terang di semua level & mode ---------- */
+        div[data-testid="stSelectbox"] div[data-baseweb="select"],
+        div[data-testid="stSelectbox"] div[data-baseweb="select"] > div,
+        div[data-testid="stSelectbox"] div[data-baseweb="select"] div {{
             background-color: {ORANGE_LIGHT} !important;
+            border-color: {ORANGE} !important;
         }}
-        div[data-baseweb="select"] > div {{
+        div[data-testid="stSelectbox"] div[data-baseweb="select"] > div {{
             border: 1.5px solid {ORANGE} !important;
             border-radius: 10px !important;
             box-shadow: none !important;
         }}
-        /* teks pilihan yang sedang terpilih di dropdown */
-        div[data-baseweb="select"] * {{
+        div[data-testid="stSelectbox"] * {{
             color: {TEXT_DARK} !important;
+            fill: {TEXT_DARK} !important;
         }}
-        /* panel/daftar opsi saat dropdown dibuka (dirender sebagai popover terpisah) */
+        /* panel opsi (popover terpisah dari DOM utama) */
         div[data-baseweb="popover"],
         div[data-baseweb="popover"] div,
         ul[role="listbox"] {{
@@ -153,37 +143,31 @@ st.markdown(
             color: {TEXT_DARK} !important;
         }}
 
-        .stButton>button {{
-            background: linear-gradient(120deg, {ORANGE} 0%, {ORANGE_DARK} 100%);
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: 700;
-            padding: 8px 20px;
-            box-shadow: 0 4px 12px rgba(242, 101, 34, 0.30);
-            transition: all 0.2s ease-in-out;
-        }}
-        .stButton>button:hover {{
-            transform: translateY(-1px);
-            box-shadow: 0 6px 16px rgba(242, 101, 34, 0.40);
-            color: white;
-        }}
-
-        .range-box {{
+        .info-box {{
             background: linear-gradient(135deg, {ORANGE_LIGHT} 0%, white 100%);
             border: 1.5px solid {ORANGE};
-            border-radius: 14px;
-            padding: 16px 18px;
-            box-shadow: 0 3px 10px rgba(242, 101, 34, 0.10);
+            border-radius: 12px;
+            padding: 10px 14px;
+            margin: 4px 0;
         }}
-        .range-label {{
-            font-size: 18px;
+        .info-label {{
+            font-size: 13px;
             font-weight: 700;
             color: {ORANGE_DARK};
-            margin-bottom: 4px;
+        }}
+        .info-value {{
+            font-size: 20px;
+            font-weight: 800;
+            color: {TEXT_DARK};
+        }}
+        .range-label {{
+            font-size: 14px;
+            font-weight: 700;
+            color: {ORANGE_DARK};
+            margin-bottom: 2px;
         }}
         .range-value {{
-            font-size: 27px;
+            font-size: 20px;
             font-weight: 800;
             color: {TEXT_DARK};
         }}
@@ -198,19 +182,16 @@ df = load_data()
 st.markdown(
     """
     <div class="header-banner">
-        <div class="header-icons">🏗️ 🧱 📐 🧰</div>
-        <div class="header-title">Check Harga Konstruksi</div>
-        <div class="header-sub">Sensus Ekonomi &middot; Pemantauan Harga Komoditas Bahan Bangunan</div>
+        <div class="header-title">🏗️ Check Harga Konstruksi</div>
+        <div class="header-sub">Pemantauan Harga Komoditas Bahan Bangunan - BPS Provinsi Lampung</div>
     </div>
     """,
     unsafe_allow_html=True,
 )
 
 # ---------------- pilih komoditas ----------------
-st.markdown('<div class="card">', unsafe_allow_html=True)
-st.markdown('<div class="card-title">📋 Pilih Jenis Komoditas</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">📋 Pilih Jenis Komoditas</div>', unsafe_allow_html=True)
 pilihan = st.selectbox(" ", df["kode"].tolist(), label_visibility="collapsed")
-st.markdown('</div>', unsafe_allow_html=True)
 
 row = df[df["kode"] == pilihan].iloc[0]
 batas_bawah = float(row["Harga Bawah"])
@@ -223,8 +204,7 @@ label_hitung = (
 )
 
 # ---------------- dimensi ----------------
-st.markdown('<div class="card">', unsafe_allow_html=True)
-st.markdown('<div class="card-title">📐 Ukuran / Dimensi</div>', unsafe_allow_html=True)
+st.markdown('<div class="section-title">📐 Ukuran / Dimensi</div>', unsafe_allow_html=True)
 c1, c2, c3 = st.columns(3)
 with c1:
     panjang = st.number_input(f"Panjang ({satuan})", min_value=0.0, value=0.0, step=0.1)
@@ -236,63 +216,55 @@ with c3:
 volume = panjang * lebar * tinggi
 
 st.markdown(
-    f"""<div style="margin-top:10px; background: linear-gradient(135deg, {ORANGE_LIGHT} 0%, white 100%);
-                border:1.5px solid {ORANGE}; border-radius:12px; padding:12px 16px;
-                box-shadow:0 3px 10px rgba(242,101,34,0.10);">
-            <div style="font-size:14px; font-weight:700; color:{ORANGE_DARK};">📦 {label_hitung.capitalize()}</div>
-            <div style="font-size:24px; font-weight:800; color:{TEXT_DARK};">{volume:g} {satuan}</div>
+    f"""<div class="info-box">
+            <div class="info-label">📦 {label_hitung.capitalize()}</div>
+            <div class="info-value">{volume:g} {satuan}</div>
         </div>""",
     unsafe_allow_html=True,
 )
-st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------------- batas bawah / atas (tulisan besar) ----------------
+# ---------------- batas bawah / atas ----------------
 b1, b2 = st.columns(2)
 with b1:
     st.markdown(
-        f"""<div class="range-box">
-                <div class="range-label">⬇️ Batas Bawah Harga Komoditas</div>
+        f"""<div class="info-box">
+                <div class="range-label">⬇️ Batas Bawah</div>
                 <div class="range-value">{rupiah(batas_bawah)}</div>
             </div>""",
         unsafe_allow_html=True,
     )
 with b2:
     st.markdown(
-        f"""<div class="range-box">
-                <div class="range-label">⬆️ Batas Atas Harga Komoditas</div>
+        f"""<div class="info-box">
+                <div class="range-label">⬆️ Batas Atas</div>
                 <div class="range-value">{rupiah(batas_atas)}</div>
             </div>""",
         unsafe_allow_html=True,
     )
 
-st.markdown("<div style='height:6px'></div>", unsafe_allow_html=True)
-
 # ---------------- Total Harga (realtime, murni JS/HTML) ----------------
-# Komponen ini menangani: format pemisah ribuan saat mengetik (tanpa Enter),
-# hitung "nilai per satuan" realtime, dan tampilkan status (hijau/merah) sesuai range.
-# Semua dihitung di sisi browser (tanpa perlu rerun Streamlit) agar benar-benar realtime.
 component_html = f"""
-<div style="font-family: 'Source Sans Pro', sans-serif; padding-bottom:20px;">
-    <div style="background-color:white; border:1px solid #FBD9BE; border-radius:16px;
-                padding:18px 20px; box-shadow:0 4px 14px rgba(242,101,34,0.08);">
-        <div style="color:{ORANGE_DARK}; font-weight:700; font-size:15px; margin-bottom:10px;">
+<div style="font-family: 'Source Sans Pro', sans-serif; padding-bottom:14px;">
+    <div style="background-color:white; border:1px solid #FBD9BE; border-radius:12px;
+                padding:12px 14px; box-shadow:0 3px 10px rgba(242,101,34,0.08); margin-top:6px;">
+        <div style="color:{ORANGE_DARK}; font-weight:700; font-size:13px; margin-bottom:6px;">
             💰 Total Harga
         </div>
         <input id="totalHarga" type="text" inputmode="numeric" placeholder="0"
-            style="width:100%; box-sizing:border-box; padding:10px 12px;
-                   font-size:20px; border:1.5px solid {ORANGE}; border-radius:10px;
+            style="width:100%; box-sizing:border-box; padding:9px 10px;
+                   font-size:18px; border:1.5px solid {ORANGE}; border-radius:10px;
                    background-color:{ORANGE_LIGHT}; color:{TEXT_DARK}; outline:none;" />
     </div>
 
-    <div style="margin-top:16px; background: linear-gradient(135deg, {ORANGE_LIGHT} 0%, white 100%);
-                border:1.5px solid {ORANGE}; border-radius:14px; padding:16px 18px;
+    <div style="margin-top:10px; background: linear-gradient(135deg, {ORANGE_LIGHT} 0%, white 100%);
+                border:1.5px solid {ORANGE}; border-radius:12px; padding:10px 14px;
                 box-shadow:0 3px 10px rgba(242,101,34,0.10);">
-        <div style="font-size:18px; font-weight:700; color:{ORANGE_DARK};">📊 Nilai per Satuan ({satuan})</div>
-        <div id="nilaiPerSatuan" style="font-size:28px; font-weight:800; color:{TEXT_DARK};">Rp 0</div>
+        <div style="font-size:13px; font-weight:700; color:{ORANGE_DARK};">📊 Nilai per Satuan ({satuan})</div>
+        <div id="nilaiPerSatuan" style="font-size:20px; font-weight:800; color:{TEXT_DARK};">Rp 0</div>
     </div>
 
-    <div id="warningBox" style="display:none; margin-top:12px; padding:16px; border-radius:12px;
-         font-weight:700; font-size:16px; color:white;">
+    <div id="warningBox" style="display:none; margin-top:8px; padding:12px; border-radius:10px;
+         font-weight:700; font-size:14px; color:white;">
     </div>
 </div>
 
@@ -346,4 +318,4 @@ component_html = f"""
 </script>
 """
 
-components.html(component_html, height=340, scrolling=False)
+components.html(component_html, height=260, scrolling=False)
