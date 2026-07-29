@@ -191,7 +191,7 @@ st.markdown(
     """
     <div class="header-banner">
         <div class="header-title">Check Harga Konstruksi</div>
-        <div class="header-sub">Pemantauan Harga Komoditas Bahan Bangunan</div>
+        <div class="header-sub">Pemantauan Harga Komoditas Bahan Bangunan - BPS Provinsi Lampung</div>
     </div>
     """,
     unsafe_allow_html=True,
