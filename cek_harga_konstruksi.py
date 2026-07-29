@@ -98,7 +98,7 @@ st.markdown(
         /* ---------- Card style container ---------- */
         .card {{
             background-color: white;
-            # border: 1px solid #FBD9BE;
+            border: 1px solid #FBD9BE;
             # border-radius: 16px;
             # padding: 18px 20px;
             # margin-bottom: 18px;
