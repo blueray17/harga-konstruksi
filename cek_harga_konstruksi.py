@@ -19,6 +19,7 @@ def load_data():
         df.columns = [c.strip() for c in df.columns]
         return df
     except Exception:
+        return null
         # return pd.DataFrame({
         #     "kode": [
         #         "1. Tanah Uruk (tanah biasa)", "2. Pasir Pasang", "3. Pasir cor/beton",
