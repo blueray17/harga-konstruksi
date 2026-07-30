@@ -1,4 +1,8 @@
+import json
+import re
+
 import pandas as pd
+import requests
 import streamlit as st
 import streamlit.components.v1 as components
 
@@ -6,17 +10,36 @@ st.set_page_config(page_title="Check Harga Konstruksi", layout="centered", page_
 
 # ============================================================
 # KONFIGURASI GOOGLE SHEET
+# Menggunakan Google Visualization API (gviz) alih-alih export CSV,
+# karena export CSV memformat angka dengan pemisah ribuan (koma/titik)
+# yang bentrok dengan delimiter CSV itu sendiri -> angka jadi kepotong
+# saat dibaca. Endpoint gviz mengirim nilai numerik MENTAH via JSON,
+# jadi 1000000 tetap terbaca 1000000, bukan 1000.
 # ============================================================
-SHEET_ID = "1xmk9qvdlaT-xGqEOgW7TkzEIrrHiNQHVVJGuS1y-G90"
+SHEET_ID = "1kl4tdnLZt1_GBDWwehTQ4VJr1tM-7sFTFn3eH9sqCTU"
 GID = "557338575"
-SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}"
+GVIZ_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:json&gid={GID}"
 
 
 @st.cache_data(ttl=300)
 def load_data():
     try:
-        df = pd.read_csv(SHEET_URL)
-        df.columns = [c.strip() for c in df.columns]
+        resp = requests.get(GVIZ_URL, timeout=15)
+        resp.raise_for_status()
+        # respons gviz dibungkus: google.visualization.Query.setResponse({...});
+        match = re.search(r"setResponse\((.*)\);\s*$", resp.text.strip(), re.S)
+        payload = json.loads(match.group(1))
+
+        kolom = [c.get("label") or f"col_{i}" for i, c in enumerate(payload["table"]["cols"])]
+        baris = []
+        for r in payload["table"]["rows"]:
+            nilai_baris = []
+            for cell in r["c"]:
+                nilai_baris.append(cell.get("v") if cell else None)
+            baris.append(nilai_baris)
+
+        df = pd.DataFrame(baris, columns=kolom)
+        df.columns = [str(c).strip() for c in df.columns]
         return df, None
     except Exception:
         fallback = pd.DataFrame({
@@ -267,6 +290,8 @@ st.markdown(
 )
 
 # ---------------- pilih komoditas ----------------
+df = df[df["kode"].notna() & (df["kode"].astype(str).str.strip() != "")].reset_index(drop=True)
+
 st.markdown('<div class="section-title">📋 Pilih Jenis Komoditas</div>', unsafe_allow_html=True)
 pilihan = st.selectbox(" ", df["kode"].tolist(), label_visibility="collapsed")
 
