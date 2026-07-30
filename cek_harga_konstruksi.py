@@ -22,11 +22,17 @@ def load_data():
         # return pd.DataFrame()
         return pd.DataFrame({
             "kode": [
-                "1. Tanah Uruk (tanah biasa)", "2. Pasir Pasang",
+                "1. Tanah Uruk (tanah biasa)", "2. Pasir Pasang", "3. Pasir cor/beton",
+                "4. Batu pondasi (batu gunung)", "5. Batu Bata Tanah Liat",
+                "6. batako tidak berlubang", "7. Batu split 1-2 cm",
+                "8. Kayu balok (kayu kelas II)", "9. Kayu balok (kayu kelas III)",
+                "10. Kayu papan (kayu kelas II)",
             ],
             "Penghitungan": ["volume"] * 10,
-            "Harga Bawah": [140000, 205000],
-            "Harga Atas": [205000, 379000],
+            "Harga Bawah": [140000, 205000, 205000, 205000, 500000, 446000, 205000,
+                             8680000, 4167000, 9375000],
+            "Harga Atas": [205000, 379000, 393000, 294000, 781000, 595000, 315000,
+                            9470000, 4687500, 11250000],
             "satuan": ["m"] * 10,
         })
 
