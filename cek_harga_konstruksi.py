@@ -17,10 +17,9 @@ def load_data():
     try:
         df = pd.read_csv(SHEET_URL)
         df.columns = [c.strip() for c in df.columns]
-        return df
+        return df, None
     except Exception:
-        # return pd.DataFrame()
-        return pd.DataFrame({
+        fallback = pd.DataFrame({
             "kode": [
                 "1. Tanah Uruk (tanah biasa)", "2. Pasir Pasang", "3. Pasir cor/beton",
                 "4. Batu pondasi (batu gunung)", "5. Batu Bata Tanah Liat",
@@ -35,6 +34,26 @@ def load_data():
                             9470000, 4687500, 11250000],
             "satuan": ["m"] * 10,
         })
+        return fallback, "gagal_fetch"
+
+
+def normalisasi_kolom(df: pd.DataFrame) -> pd.DataFrame:
+    """Cocokkan nama kolom dari sheet ke nama baku yang dipakai app,
+    tidak peduli huruf besar/kecil atau spasi berlebih."""
+    mapping = {}
+    for col in df.columns:
+        key = str(col).strip().lower()
+        if key == "kode":
+            mapping[col] = "kode"
+        elif key.startswith("penghitungan"):
+            mapping[col] = "Penghitungan"
+        elif key.startswith("harga bawah"):
+            mapping[col] = "Harga Bawah"
+        elif key.startswith("harga atas"):
+            mapping[col] = "Harga Atas"
+        elif key == "satuan":
+            mapping[col] = "satuan"
+    return df.rename(columns=mapping)
 
 
 def rupiah(nilai) -> str:
@@ -188,7 +207,32 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-df = load_data()
+df, status = load_data()
+df = normalisasi_kolom(df)
+
+kolom_wajib = ["kode", "Harga Bawah", "Harga Atas"]
+kolom_hilang = [k for k in kolom_wajib if k not in df.columns]
+
+if status == "gagal_fetch":
+    st.warning(
+        "⚠️ Gagal mengambil data dari Google Sheet (cek SHEET_ID/GID atau "
+        "pastikan sheet sudah di-share 'Anyone with the link → Viewer'). "
+        "Menampilkan data contoh sementara."
+    )
+elif kolom_hilang:
+    st.error(
+        "❌ Kolom berikut tidak ditemukan di Google Sheet Anda: "
+        f"**{', '.join(kolom_hilang)}**.\n\n"
+        f"Kolom yang terbaca dari sheet: `{', '.join(df.columns.astype(str))}`.\n\n"
+        "Pastikan header di baris pertama sheet persis: `kode`, `Penghitungan`, "
+        "`Harga Bawah`, `Harga Atas`, `satuan` (huruf besar/kecil bebas, tanpa spasi ekstra)."
+    )
+    st.stop()
+
+if "Penghitungan" not in df.columns:
+    df["Penghitungan"] = "Volume"
+if "satuan" not in df.columns:
+    df["satuan"] = "m"
 
 # ---------------- auto-select isi input angka saat diklik/fokus ----------------
 components.html(
