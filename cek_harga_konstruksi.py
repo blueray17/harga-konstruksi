@@ -16,7 +16,7 @@ st.set_page_config(page_title="Check Harga Konstruksi", layout="centered", page_
 # saat dibaca. Endpoint gviz mengirim nilai numerik MENTAH via JSON,
 # jadi 1000000 tetap terbaca 1000000, bukan 1000.
 # ============================================================
-SHEET_ID = "1kl4tdnLZt1_GBDWwehTQ4VJr1tM-7sFTFn3eH9sqCTU"
+SHEET_ID = "1W48WatlQA_p8UQ4vQKHcO1HUBOXqZFvTqeybQk_jYrI"
 GID = "557338575"
 GVIZ_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/gviz/tq?tqx=out:json&gid={GID}"
 
