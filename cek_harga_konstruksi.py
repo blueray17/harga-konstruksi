@@ -7,7 +7,7 @@ st.set_page_config(page_title="Check Harga Konstruksi", layout="centered", page_
 # ============================================================
 # KONFIGURASI GOOGLE SHEET
 # ============================================================
-SHEET_ID = "1W48WatlQA_p8UQ4vQKHcO1HUBOXqZFvTqeybQk_jYrI"
+SHEET_ID = "1xmk9qvdlaT-xGqEOgW7TkzEIrrHiNQHVVJGuS1y-G90"
 GID = "0"
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}"
 
