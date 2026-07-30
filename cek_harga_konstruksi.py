@@ -7,7 +7,7 @@ st.set_page_config(page_title="Check Harga Konstruksi", layout="centered", page_
 # ============================================================
 # KONFIGURASI GOOGLE SHEET
 # ============================================================
-SHEET_ID = "1uuuZhUlzolwlxBx5lothgtBeEr4t5SuK"
+SHEET_ID = "1kl4tdnLZt1_GBDWwehTQ4VJr1tM-7sFTFn3eH9sqCTU"
 GID = "0"
 SHEET_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv&gid={GID}"
 
@@ -19,26 +19,36 @@ def load_data():
         df.columns = [c.strip() for c in df.columns]
         return df
     except Exception:
-        return null
-        # return pd.DataFrame({
-        #     "kode": [
-        #         "1. Tanah Uruk (tanah biasa)", "2. Pasir Pasang", "3. Pasir cor/beton",
-        #         "4. Batu pondasi (batu gunung)", "5. Batu Bata Tanah Liat",
-        #         "6. batako tidak berlubang", "7. Batu split 1-2 cm",
-        #         "8. Kayu balok (kayu kelas II)", "9. Kayu balok (kayu kelas III)",
-        #         "10. Kayu papan (kayu kelas II)",
-        #     ],
-        #     "Penghitungan": ["volume"] * 10,
-        #     "Harga Bawah": [140000, 205000, 205000, 205000, 500000, 446000, 205000,
-        #                      8680000, 4167000, 9375000],
-        #     "Harga Atas": [205000, 379000, 393000, 294000, 781000, 595000, 315000,
-        #                     9470000, 4687500, 11250000],
-        #     "satuan": ["m"] * 10,
-        # })
+        return pd.DataFrame({
+            "kode": [
+                "1. Tanah Uruk (tanah biasa)", "2. Pasir Pasang", "3. Pasir cor/beton",
+                "4. Batu pondasi (batu gunung)", "5. Batu Bata Tanah Liat",
+                "6. batako tidak berlubang", "7. Batu split 1-2 cm",
+                "8. Kayu balok (kayu kelas II)", "9. Kayu balok (kayu kelas III)",
+                "10. Kayu papan (kayu kelas II)",
+            ],
+            "Penghitungan": ["volume"] * 10,
+            "Harga Bawah": [140000, 205000, 205000, 205000, 500000, 446000, 205000,
+                             8680000, 4167000, 9375000],
+            "Harga Atas": [205000, 379000, 393000, 294000, 781000, 595000, 315000,
+                            9470000, 4687500, 11250000],
+            "satuan": ["m"] * 10,
+        })
 
 
 def rupiah(nilai) -> str:
     return f"Rp {nilai:,.0f}".replace(",", ".")
+
+
+def format_angka_id(nilai, max_desimal: int = 2) -> str:
+    """Format angka gaya Indonesia: titik sebagai pemisah ribuan, koma sebagai pemisah desimal."""
+    nilai = round(float(nilai), max_desimal)
+    if nilai == int(nilai):
+        formatted = f"{int(nilai):,}"
+    else:
+        formatted = f"{nilai:,.{max_desimal}f}".rstrip("0").rstrip(".")
+    # tukar posisi separator: koma bawaan Python -> titik ribuan, titik bawaan -> koma desimal
+    return formatted.replace(",", "§").replace(".", ",").replace("§", ".")
 
 
 # ============================================================
@@ -240,7 +250,7 @@ volume = panjang * lebar * tinggi
 st.markdown(
     f"""<div class="info-box">
             <div class="info-label">📦 {label_hitung.capitalize()}</div>
-            <div class="info-value">{volume:g} {satuan}</div>
+            <div class="info-value">{format_angka_id(volume)} {satuan}</div>
         </div>""",
     unsafe_allow_html=True,
 )
